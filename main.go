@@ -12,6 +12,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 // Reading files requires checking most calls for errors.
@@ -47,6 +48,40 @@ func main() {
 		lines = append(lines, l)
 	}
 	//fmt.Print(lines)
+
+	otherAccessories := []Accessory{
+		Accessory{"a", 12.4},
+		Accessory{"55110-87L00-0EP", 12.4},
+		Accessory{"b", 12.4},
+		Accessory{"55110-97J01-0EP", 12.4},
+		Accessory{"c", 12.4},
+		Accessory{"d", 12.4},
+	}
+
+	var wg sync.WaitGroup
+
+	wg.Add(len(lines))
+
+	for _, v := range otherAccessories {
+		go func(a1 Accessory, file []Accessory) {
+			for _, l := range file {
+				defer wg.Done()
+				if a1.ItemNumber == l.ItemNumber {
+					fmt.Println(a1.ItemNumber)
+					//f, err := os.Create("output.txt")
+					//check(err)
+					//defer f.Close()
+					//d1 := []byte(a1.ItemNumber)
+					//_, err = f.WriteString(string(d1))
+					//err := ioutil.WriteFile("output.txt", d1, 0644)
+					//check(err)
+				}
+			}
+		}(v, lines)
+	}
+
+	wg.Wait()
+	//fmt.Print(otherAccessories)
 	fmt.Println("done")
 
 	// Perhaps the most basic file reading task is
